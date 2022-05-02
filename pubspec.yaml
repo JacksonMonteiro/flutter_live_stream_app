@@ -34,8 +34,15 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
-  agora_uikit: ^0.0.4
+  agora_rtc_engine: ^5.1.0
+  agora_rtm: ^1.1.0
+  flutter_riverpod: ^1.0.3
+  shared_preferences: ^2.0.13
+  app_popup_menu: ^1.0.0
+  modal_bottom_sheet: ^2.0.1
+  circular_menu: ^1.2.3
 
+  
 dev_dependencies:
   flutter_test:
     sdk: flutter

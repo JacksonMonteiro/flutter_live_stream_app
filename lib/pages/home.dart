@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:live_stream_app/pages/director.dart';
 import 'package:live_stream_app/pages/participant.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -12,11 +13,32 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  final _channelName = TextEditingController();
+  final _userName = TextEditingController();
+  late int uid;
+
+  @override
+  void initState() {
+    super.initState();
+    getUserUid();
+  }
+
+  Future<void> getUserUid() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    int? storedUid = preferences.getInt('localUid');
+    print('UID salvo: $uid');
+    if (storedUid != null) {
+      uid = storedUid;
+    } else {
+      int time = DateTime.now().microsecondsSinceEpoch;
+      uid = int.parse(time.toString().substring(1, time.toString().length - 3));
+      preferences.setInt('localUid', uid);
+      print('Configurações de UID: $uid');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final _channelName = TextEditingController();
-    final _userName = TextEditingController();
-
     return Scaffold(
       body: Center(
           child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
@@ -68,6 +90,7 @@ class _HomeState extends State<Home> {
                   builder: (context) => Participant(
                         channelName: _channelName.text,
                         userName: _userName.text,
+                        uid: uid,
                       )));
             },
             child: Row(

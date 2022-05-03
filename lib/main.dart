@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:live_stream_app/pages/home.dart';
-import 'package:live_stream_app/utils/appId.dart';
 
 void main() {
   runApp(const MyApp());
@@ -23,5 +22,4 @@ class MyApp extends StatelessWidget {
       ),
     );
   }
-} 
-
+}

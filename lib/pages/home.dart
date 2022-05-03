@@ -1,8 +1,8 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
-
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, avoid_print
 import 'package:flutter/material.dart';
 import 'package:live_stream_app/pages/director.dart';
 import 'package:live_stream_app/pages/participant.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Home extends StatefulWidget {
@@ -26,9 +26,9 @@ class _HomeState extends State<Home> {
   Future<void> getUserUid() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     int? storedUid = preferences.getInt('localUid');
-    print('UID salvo: $uid');
     if (storedUid != null) {
       uid = storedUid;
+      print('UID salvo: $uid');
     } else {
       int time = DateTime.now().microsecondsSinceEpoch;
       uid = int.parse(time.toString().substring(1, time.toString().length - 3));
@@ -85,7 +85,8 @@ class _HomeState extends State<Home> {
                 backgroundColor: Colors.blue,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20))),
-            onPressed: () {
+            onPressed: () async {
+              await [Permission.camera, Permission.microphone].request();
               Navigator.of(context).push(MaterialPageRoute(
                   builder: (context) => Participant(
                         channelName: _channelName.text,

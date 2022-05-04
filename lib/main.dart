@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:live_stream_app/pages/home.dart';
 
-void main() {
+void main() async {
   runApp(const MyApp());
 }
 

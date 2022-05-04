@@ -30,7 +30,7 @@ class _HomeState extends State<Home> {
       uid = storedUid;
       print('UID salvo: $uid');
     } else {
-      int time = DateTime.now().microsecondsSinceEpoch;
+      int time = DateTime.now().millisecondsSinceEpoch;
       uid = int.parse(time.toString().substring(1, time.toString().length - 3));
       preferences.setInt('localUid', uid);
       print('Configurações de UID: $uid');
@@ -40,6 +40,7 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Center(
           child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
         Image.asset('assets/images/logo.png'),

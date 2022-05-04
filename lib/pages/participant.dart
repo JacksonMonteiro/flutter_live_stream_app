@@ -1,10 +1,12 @@
-// ignore_for_file: prefer_const_constructors, unused_field, avoid_print
+// ignore_for_file: prefer_const_constructors, unused_field, avoid_print, library_prefixes, unused_import
 
 import 'package:agora_rtc_engine/rtc_engine.dart';
 import 'package:agora_rtc_engine/rtc_local_view.dart' as RtcLocalView;
 import 'package:agora_rtc_engine/rtc_remote_view.dart' as RtcRemoteView;
 import 'package:agora_rtm/agora_rtm.dart';
 import 'package:flutter/material.dart';
+import 'package:live_stream_app/models/user.dart';
+import 'package:live_stream_app/utils/token.dart';
 
 import '../utils/appId.dart';
 
@@ -25,7 +27,7 @@ class Participant extends StatefulWidget {
 }
 
 class _ParticipantState extends State<Participant> {
-  final List<int> _users = [];
+  final List<AgoraUser> _users = [];
   late RtcEngine _engine;
   AgoraRtmClient? _client;
   AgoraRtmChannel? _channel;
@@ -38,6 +40,7 @@ class _ParticipantState extends State<Participant> {
     initializeAgora();
   }
 
+  @override
   void dispose() {
     _users.clear();
     _engine.leaveChannel();
@@ -60,7 +63,7 @@ class _ParticipantState extends State<Participant> {
     _engine.setEventHandler(
       RtcEngineEventHandler(joinChannelSuccess: (channel, uid, elapsed) {
         setState(() {
-          _users.add(uid);
+          _users.add(AgoraUser(uid: uid));
         });
       }, leaveChannel: (stats) {
         setState(() {
@@ -88,10 +91,10 @@ class _ParticipantState extends State<Participant> {
     };
 
     // Join the RTM  and RTC channels
-    await _client?.login('gfx', widget.uid.toString());
+    await _client?.login(token, widget.uid.toString());
     _channel = await _client?.createChannel(widget.channelName);
     await _channel?.join();
-    await _engine.joinChannel(null, widget.channelName, null, widget.uid);
+    await _engine.joinChannel(token, widget.channelName, null, widget.uid);
 
     // Callbacks for RTM Channel
     _channel?.onMemberJoined = (AgoraRtmMember member) {
@@ -178,12 +181,6 @@ class _ParticipantState extends State<Participant> {
   }
 
   Widget _broadcastView() {
-    if (_users.isEmpty) {
-      return Center(
-        child: Text('Nenhum usuário presente'),
-      );
-    }
-
     return Row(children: [
       Expanded(child: RtcLocalView.SurfaceView()),
     ]);

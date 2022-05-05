@@ -118,10 +118,12 @@ class _HomeState extends State<Home> {
                 backgroundColor: Colors.black,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20))),
-            onPressed: () {
+            onPressed: () async {
+              await [Permission.camera, Permission.microphone].request();
               Navigator.of(context).push(MaterialPageRoute(
                   builder: (context) => Director(
                         channelName: _channelName.text,
+                        uid: uid,
                       )));
             },
             child: Row(

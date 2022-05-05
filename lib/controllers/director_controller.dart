@@ -107,14 +107,14 @@ class DirectorController extends StateNotifier<DirectorModel> {
   Future<void> addUserToLobby({required int uid}) async {
     state = state.copyWith(lobbyUsers: {
       ...state.lobbyUsers,
+
       AgoraUser(
           uid: uid,
           muted: true,
           videoDisabled: true,
-          name: 'Todo',
+          name: 'todo',
           backgroundColor: Colors.blue)
-    });
-    ;
+    }); 
   }
 
   Future<void> removeUser({required int uid}) async {
@@ -122,7 +122,7 @@ class DirectorController extends StateNotifier<DirectorModel> {
     Set<AgoraUser> _tempLobby = state.lobbyUsers;
 
     for (int i = 0; i < _tempActive.length; i++) {
-      if (_tempLobby.elementAt(i).uid == uid) {
+      if (_tempActive.elementAt(i).uid == uid) {
         _tempActive.remove(_tempActive.elementAt(i));
       }
     }
@@ -145,6 +145,7 @@ class DirectorController extends StateNotifier<DirectorModel> {
       if (_tempLobby.elementAt(i).uid == uid) {
         tempColor = _tempLobby.elementAt(i).backgroundColor;
         tempName = _tempLobby.elementAt(i).name;
+        _tempLobby.remove(_tempLobby.elementAt(i));
       }
     }
 
@@ -158,11 +159,12 @@ class DirectorController extends StateNotifier<DirectorModel> {
     Set<AgoraUser> _tempActive = state.activeUsers;
     Color? tempColor;
     String? tempName;
-
+ 
     for (int i = 0; i < _tempActive.length; i++) {
       if (_tempActive.elementAt(i).uid == uid) {
         tempColor = _tempActive.elementAt(i).backgroundColor;
         tempName = _tempActive.elementAt(i).name;
+        _tempActive.remove(_tempActive.elementAt(i));
       }
     }
 
@@ -173,7 +175,7 @@ class DirectorController extends StateNotifier<DirectorModel> {
           backgroundColor: tempColor,
           name: tempName,
           videoDisabled: true,
-          muted: true)
+          muted: true,)
     }, activeUsers: _tempActive);
   }
 }

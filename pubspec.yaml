@@ -35,7 +35,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
   agora_rtc_engine: ^5.1.0
-  agora_rtm: ^1.1.0
+  agora_rtm: ^1.0.1
   flutter_riverpod: ^0.14.0+3
   shared_preferences: ^2.0.13
   app_popup_menu: ^1.0.0

@@ -91,10 +91,10 @@ class _ParticipantState extends State<Participant> {
     };
 
     // Join the RTM  and RTC channels
-    await _client?.login(token, widget.uid.toString());
+    await _client?.login(null, widget.uid.toString());
     _channel = await _client?.createChannel(widget.channelName);
     await _channel?.join();
-    await _engine.joinChannel(token, widget.channelName, null, widget.uid);
+    await _engine.joinChannel(null, widget.channelName, null, widget.uid);
 
     // Callbacks for RTM Channel
     _channel?.onMemberJoined = (AgoraRtmMember member) {

@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:live_stream_app/models/director_model.dart';
 import 'package:live_stream_app/models/user.dart';
 import 'package:live_stream_app/utils/appId.dart';
-import 'package:live_stream_app/utils/token.dart';
 
 final directorController =
     StateNotifierProvider.autoDispose<DirectorController, DirectorModel>((ref) {
@@ -114,7 +113,6 @@ class DirectorController extends StateNotifier<DirectorModel> {
           name: 'Todo',
           backgroundColor: Colors.blue)
     });
-    ;
   }
 
   Future<void> removeUser({required int uid}) async {
@@ -145,6 +143,7 @@ class DirectorController extends StateNotifier<DirectorModel> {
       if (_tempLobby.elementAt(i).uid == uid) {
         tempColor = _tempLobby.elementAt(i).backgroundColor;
         tempName = _tempLobby.elementAt(i).name;
+        _tempLobby.remove(_tempLobby.elementAt(i));
       }
     }
 
@@ -163,6 +162,7 @@ class DirectorController extends StateNotifier<DirectorModel> {
       if (_tempActive.elementAt(i).uid == uid) {
         tempColor = _tempActive.elementAt(i).backgroundColor;
         tempName = _tempActive.elementAt(i).name;
+        _tempActive.remove(_tempActive.elementAt(i));
       }
     }
 

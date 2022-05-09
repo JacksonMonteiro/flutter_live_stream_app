@@ -113,6 +113,16 @@ class _ParticipantState extends State<Participant> {
 
     _channel?.onMessageReceived =
         (AgoraRtmMessage message, AgoraRtmMember member) {
+      List<String> parsedMessage = message.text.split(" ");
+      switch (parsedMessage[0]) {
+        case "mute":
+          if (parsedMessage[1] == widget.uid.toString()) {
+            setState(() {
+              muted = true;
+            });
+          }
+      }
+
       print('Mensagem pública de ' + member.userId + ': ' + (message.text));
     };
   }

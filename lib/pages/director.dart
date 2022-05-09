@@ -193,14 +193,32 @@ class StageUser extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 IconButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    if (directorData.activeUsers.elementAt(index).muted) {
+                      directorNotifier.toggleUserAudio(
+                          index: index, muted: true);
+                    } else {
+                      directorNotifier.toggleUserAudio(
+                          index: index, muted: false);
+                    }
+                  },
                   icon: Icon(Icons.mic_off),
                   color: directorData.activeUsers.elementAt(index).muted
                       ? Colors.red
                       : Colors.white,
                 ),
                 IconButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    if (directorData.activeUsers
+                        .elementAt(index)
+                        .videoDisabled) {
+                      directorNotifier.toggleUserVideo(
+                          index: index, enable: false);
+                    } else {
+                      directorNotifier.toggleUserVideo(
+                          index: index, enable: false);
+                    }
+                  },
                   icon: Icon(Icons.videocam_off),
                   color: directorData.activeUsers.elementAt(index).videoDisabled
                       ? Colors.red

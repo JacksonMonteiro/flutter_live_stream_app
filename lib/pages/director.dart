@@ -42,25 +42,21 @@ class _DirectorState extends State<Director> {
           child: CustomScrollView(
             slivers: [
               SliverList(
-                delegate: SliverChildListDelegate(
-                  [
-                    SafeArea(
-                      child: Container(),
-                    )
-                  ],
-                ),
+                delegate: SliverChildListDelegate([
+                  SafeArea(
+                    child: Container(),
+                  )
+                ]),
               ),
               if (directorData.activeUsers.isEmpty)
                 SliverList(
-                  delegate: SliverChildListDelegate(
-                    [
-                      Center(
-                        child: Container(
-                            padding: EdgeInsets.symmetric(vertical: 20),
-                            child: Text('Nenhum usuário ativo')),
-                      ),
-                    ],
-                  ),
+                  delegate: SliverChildListDelegate([
+                    Center(
+                      child: Container(
+                          padding: EdgeInsets.symmetric(vertical: 20),
+                          child: Text('Estado vazio')),
+                    ),
+                  ]),
                 ),
               SliverGrid(
                 delegate: SliverChildBuilderDelegate((BuildContext ctx, index) {
@@ -74,12 +70,12 @@ class _DirectorState extends State<Director> {
                       ),
                     ],
                   );
-                }, childCount: directorData.activeUsers.length,),
+                }, childCount: directorData.activeUsers.length),
                 gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
                     maxCrossAxisExtent: size.width / 2,
                     crossAxisSpacing: 20,
                     mainAxisSpacing: 20),
-              ),  
+              ),
               SliverList(
                 delegate: SliverChildListDelegate(
                   [
@@ -95,36 +91,33 @@ class _DirectorState extends State<Director> {
                 ),
               ),
               if (directorData.lobbyUsers.isEmpty)
-              SliverList(
-                delegate: SliverChildListDelegate(
-                  [
+                SliverList(
+                  delegate: SliverChildListDelegate([
                     Center(
                       child: Container(
-                        padding: EdgeInsets.symmetric(vertical: 20),
-                        child: Text('Lobby vazio'),
-                      ),
+                          padding: EdgeInsets.symmetric(vertical: 20),
+                          child: Text('Lobby vazio')),
                     ),
-                  ],
+                  ]),
                 ),
-              ),
               SliverGrid(
-                  delegate:
-                      SliverChildBuilderDelegate((BuildContext ctx, index) {
-                    return Row(
-                      children: [
-                        Expanded(
-                          child: LobbyUser(
-                              directorData: directorData,
-                              directorNotifier: directorNotifier,
-                              index: index),
-                        ),
-                      ],
-                    );
-                  }, childCount: directorData.lobbyUsers.length),
-                  gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                      maxCrossAxisExtent: size.width / 2,
-                      crossAxisSpacing: 20,
-                      mainAxisSpacing: 20))
+                delegate: SliverChildBuilderDelegate((BuildContext ctx, index) {
+                  return Row(
+                    children: [
+                      Expanded(
+                        child: LobbyUser(
+                            directorData: directorData,
+                            directorNotifier: directorNotifier,
+                            index: index),
+                      ),
+                    ],
+                  );
+                }, childCount: directorData.lobbyUsers.length),
+                gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                    maxCrossAxisExtent: size.width / 2,
+                    crossAxisSpacing: 20,
+                    mainAxisSpacing: 20),
+              ),
             ],
           ),
         ),
@@ -152,10 +145,98 @@ class StageUser extends StatelessWidget {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(10),
-            child: directorData.activeUsers.elementAt(index).videoDisabled ? Stack(children: [Container(
-              color: Colors.black
-            )],) : Stack(),
-          )
+            child: directorData.activeUsers.elementAt(index).videoDisabled
+                ? Stack(
+                    children: [
+                      Container(
+                        color: Colors.black,
+                      ),
+                      const Align(
+                        alignment: Alignment.center,
+                        child: Text('Vìdeo desligado',
+                            style: TextStyle(color: Colors.white)),
+                      ),
+                    ],
+                  )
+                : Stack(
+                    children: [
+                      RtcRemoteView.SurfaceView(
+                        channelId: 'gfx',
+                        uid: directorData.activeUsers.elementAt(index).uid,
+                      ),
+                      Align(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius:
+                                BorderRadius.only(topLeft: Radius.circular(10)),
+                            color: directorData.activeUsers
+                                .elementAt(index)
+                                .backgroundColor!
+                                .withOpacity(1),
+                          ),
+                          padding: EdgeInsets.all(16),
+                          child: Text(
+                            directorData.activeUsers.elementAt(index).name ??
+                                'Erro ao mostrar nome',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                        alignment: Alignment.bottomRight,
+                      )
+                    ],
+                  ),
+          ),
+          Container(
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10), color: Colors.black54),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  onPressed: () {
+                    if (directorData.activeUsers.elementAt(index).muted) {
+                      directorNotifier.toggleUserAudio(
+                          index: index, muted: true);
+                    } else {
+                      directorNotifier.toggleUserAudio(
+                          index: index, muted: false);
+                    }
+                  },
+                  icon: Icon(Icons.mic_off),
+                  color: directorData.activeUsers.elementAt(index).muted
+                      ? Colors.red
+                      : Colors.white,
+                ),
+                IconButton(
+                  onPressed: () {
+                    if (directorData.activeUsers
+                        .elementAt(index)
+                        .videoDisabled) {
+                      directorNotifier.toggleUserVideo(
+                          index: index, enable: false);
+                    } else {
+                      directorNotifier.toggleUserVideo(
+                          index: index, enable: false);
+                    }
+                  },
+                  icon: Icon(Icons.videocam_off),
+                  color: directorData.activeUsers.elementAt(index).videoDisabled
+                      ? Colors.red
+                      : Colors.white,
+                ),
+                IconButton(
+                  onPressed: () {
+                    directorNotifier.demoteToLobbyUser(
+                        uid: directorData.activeUsers.elementAt(index).uid);
+                  },
+                  icon: Icon(Icons.arrow_downward),
+                  color: directorData.activeUsers.elementAt(index).muted
+                      ? Colors.red
+                      : Colors.white,
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -163,6 +244,10 @@ class StageUser extends StatelessWidget {
 }
 
 class LobbyUser extends StatelessWidget {
+  final DirectorModel directorData;
+  final DirectorController directorNotifier;
+  final int index;
+
   const LobbyUser(
       {Key? key,
       required this.directorData,
@@ -170,18 +255,13 @@ class LobbyUser extends StatelessWidget {
       required this.index})
       : super(key: key);
 
-  final DirectorModel directorData;
-  final DirectorController directorNotifier;
-  final int index;
-
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
         ClipRRect(
           borderRadius: BorderRadius.circular(10),
-          child: directorData.lobbyUsers.elementAt(index).videoDisabled ? 
-          Stack(children: [
+          child: Stack(children: [
             Container(
               color:
                   (directorData.lobbyUsers.elementAt(index).backgroundColor !=
@@ -195,14 +275,14 @@ class LobbyUser extends StatelessWidget {
             Align(
               alignment: Alignment.center,
               child: Text(
-                directorData.lobbyUsers.elementAt(index).name ?? "Erro ao mostrar nome",
-                style: TextStyle(color: Colors.white),
+                directorData.lobbyUsers.elementAt(index).name ??
+                    "Erro ao mostrar nome",
+                style: TextStyle(
+                  color: Colors.white,
+                ),
               ),
             ),
-          ]) : RtcRemoteView.SurfaceView(
-            channelId: 'gfx',
-            uid: directorData.lobbyUsers.elementAt(index).uid,
-            ),
+          ]),
         ),
         Container(
           decoration: BoxDecoration(
@@ -211,12 +291,12 @@ class LobbyUser extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               IconButton(
+                icon: Icon(Icons.arrow_upward),
                 onPressed: () {
                   directorNotifier.promoteToActiveUser(
-                      uid: directorData.lobbyUsers.elementAt(index).uid);
+                    uid: directorData.lobbyUsers.elementAt(index).uid,
+                  );
                 },
-                icon: Icon(Icons.arrow_upward),
-                color: Colors.white,
               ),
             ],
           ),
@@ -225,3 +305,4 @@ class LobbyUser extends StatelessWidget {
     );
   }
 }
+  

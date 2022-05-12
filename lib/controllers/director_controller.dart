@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:live_stream_app/models/director_model.dart';
 import 'package:live_stream_app/models/user.dart';
 import 'package:live_stream_app/utils/appId.dart';
-import 'package:live_stream_app/utils/token.dart';
+import 'package:live_stream_app/utils/message.dart';
 
 final directorController =
     StateNotifierProvider.autoDispose<DirectorController, DirectorModel>((ref) {
@@ -46,6 +46,20 @@ class DirectorController extends StateNotifier<DirectorModel> {
         },
         userOffline: (uid, reason) {
           removeUser(uid: uid);
+        },
+        remoteAudioStateChanged: (uid, state, reason, elapsed) {
+          if (state == AudioRemoteState.Decoding) {
+            updateUserAudio(uid: uid, muted: false);
+          } else if (state == AudioRemoteState.Stopped) {
+            updateUserAudio(uid: uid, muted: true);
+          }
+        },
+        remoteVideoStateChanged: (uid, state, reason, elapsed) {
+          if (state == VideoRemoteState.Decoding) {
+            updateUserVideo(uid: uid, videoDisabled: false);
+          } else if (state == VideoRemoteState.Stopped) {
+            updateUserVideo(uid: uid, videoDisabled: true);
+          }
         },
       ),
     );
@@ -114,7 +128,10 @@ class DirectorController extends StateNotifier<DirectorModel> {
           videoDisabled: true,
           name: 'todo',
           backgroundColor: Colors.blue)
-    }); 
+    });
+
+    state.channel!.sendMessage(AgoraRtmMessage.fromText(
+        Message().sendActiveUsers(activeUsers: state.activeUsers)));
   }
 
   Future<void> removeUser({required int uid}) async {
@@ -134,6 +151,8 @@ class DirectorController extends StateNotifier<DirectorModel> {
     }
 
     state = state.copyWith(activeUsers: _tempActive, lobbyUsers: _tempLobby);
+    state.channel!.sendMessage(AgoraRtmMessage.fromText(
+        Message().sendActiveUsers(activeUsers: state.activeUsers)));
   }
 
   Future<void> promoteToActiveUser({required int uid}) async {
@@ -153,6 +172,11 @@ class DirectorController extends StateNotifier<DirectorModel> {
       ...state.activeUsers,
       AgoraUser(uid: uid, backgroundColor: tempColor, name: tempName)
     }, lobbyUsers: _tempLobby);
+
+    state.channel!.sendMessage(AgoraRtmMessage.fromText("unmute $uid"));
+    state.channel!.sendMessage(AgoraRtmMessage.fromText("enable $uid"));
+    state.channel!.sendMessage(AgoraRtmMessage.fromText(
+        Message().sendActiveUsers(activeUsers: state.activeUsers)));
   }
 
   Future<void> demoteToLobbyUser({required int uid}) async {
@@ -177,5 +201,49 @@ class DirectorController extends StateNotifier<DirectorModel> {
           videoDisabled: true,
           muted: true,)
     }, activeUsers: _tempActive);
+
+    state.channel!.sendMessage(AgoraRtmMessage.fromText("mute $uid"));
+    state.channel!.sendMessage(AgoraRtmMessage.fromText("disable $uid"));
+    state.channel!.sendMessage(AgoraRtmMessage.fromText(
+        Message().sendActiveUsers(activeUsers: state.activeUsers)));
+  }
+
+  Future<void> updateUserAudio({required int uid, required bool muted}) async {
+    AgoraUser _tempUser =
+        state.activeUsers.singleWhere((element) => element.uid == uid);
+    Set<AgoraUser> _tempSet = state.activeUsers;
+    _tempSet.remove(_tempUser);
+    _tempSet.add(_tempUser.copyWith(muted: muted));
+  }
+
+  Future<void> updateUserVideo(
+      {required int uid, required bool videoDisabled}) async {
+    AgoraUser _tempUser =
+        state.activeUsers.singleWhere((element) => element.uid == uid);
+    Set<AgoraUser> _tempSet = state.activeUsers;
+    _tempSet.remove(_tempUser);
+    _tempSet.add(_tempUser.copyWith(videoDisabled: videoDisabled));
+  }
+
+  Future<void> toggleUserAudio(
+      {required int index, required bool muted}) async {
+    if (muted) {
+      state.channel!.sendMessage(AgoraRtmMessage.fromText(
+          "unmute ${state.activeUsers.elementAt(index).uid}"));
+    } else {
+      state.channel!.sendMessage(AgoraRtmMessage.fromText(
+          "mute ${state.activeUsers.elementAt(index).uid}"));
+    }
+  }
+
+  Future<void> toggleUserVideo(
+      {required int index, required bool enable}) async {
+    if (enable) {
+      state.channel!.sendMessage(AgoraRtmMessage.fromText(
+          "enable ${state.activeUsers.elementAt(index).uid}"));
+    } else {
+      state.channel!.sendMessage(AgoraRtmMessage.fromText(
+          "disable ${state.activeUsers.elementAt(index).uid}"));
+    }
   }
 }

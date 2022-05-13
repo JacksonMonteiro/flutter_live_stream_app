@@ -119,15 +119,14 @@ class DirectorController extends StateNotifier<DirectorModel> {
   }
 
   Future<void> addUserToLobby({required int uid}) async {
-    var userAttributes = await state.client?.getUserAttributes(uid.toString());
     state = state.copyWith(lobbyUsers: {
       ...state.lobbyUsers,
       AgoraUser(
           uid: uid,
           muted: true,
           videoDisabled: true,
-          name: userAttributes?['name'],
-          backgroundColor: Color(int.parse(userAttributes?['color']))),
+          name: 'todo',
+          backgroundColor: Colors.blue)
     });
 
     state.channel!.sendMessage(AgoraRtmMessage.fromText(

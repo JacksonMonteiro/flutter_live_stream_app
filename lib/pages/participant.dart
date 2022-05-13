@@ -1,7 +1,5 @@
 // ignore_for_file: prefer_const_constructors, unused_field, avoid_print, library_prefixes, unused_import
 
-import 'dart:math';
-
 import 'package:agora_rtc_engine/rtc_engine.dart';
 import 'package:agora_rtc_engine/rtc_local_view.dart' as RtcLocalView;
 import 'package:agora_rtc_engine/rtc_remote_view.dart' as RtcRemoteView;
@@ -67,13 +65,7 @@ class _ParticipantState extends State<Participant> {
     _engine.setEventHandler(
       RtcEngineEventHandler(joinChannelSuccess: (channel, uid, elapsed) {
         setState(() {
-          int randomColor = (Random().nextDouble() * 0xFFFFFFFF).toInt();
-          Map<String, String> name = {'Key': 'name', 'value': widget.userName};
-          Map<String, String> color = {
-            'Key': 'color',
-            'value': randomColor.toString()
-          };
-          _client!.addOrUpdateLocalUserAttributes([name, color]);
+          _users.add(AgoraUser(uid: uid));
         });
       }, leaveChannel: (stats) {
         setState(() {

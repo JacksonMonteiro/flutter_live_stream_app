@@ -1,5 +1,7 @@
 // ignore_for_file: prefer_const_constructors, unused_field, avoid_print, library_prefixes, unused_import
 
+import 'dart:math';
+
 import 'package:agora_rtc_engine/rtc_engine.dart';
 import 'package:agora_rtc_engine/rtc_local_view.dart' as RtcLocalView;
 import 'package:agora_rtc_engine/rtc_remote_view.dart' as RtcRemoteView;
@@ -65,7 +67,13 @@ class _ParticipantState extends State<Participant> {
     _engine.setEventHandler(
       RtcEngineEventHandler(joinChannelSuccess: (channel, uid, elapsed) {
         setState(() {
-          _users.add(AgoraUser(uid: uid));
+          int randomColor = (Random().nextDouble() * 0xFFFFFFFF).toInt();
+          Map<String, String> name = {'Key': 'name', 'value': widget.userName};
+          Map<String, String> color = {
+            'Key': 'color',
+            'value': randomColor.toString()
+          };
+          _client!.addOrUpdateLocalUserAttributes([name, color]);
         });
       }, leaveChannel: (stats) {
         setState(() {
@@ -116,6 +124,7 @@ class _ParticipantState extends State<Participant> {
     _channel?.onMessageReceived =
         (AgoraRtmMessage message, AgoraRtmMember member) {
       List<String> parsedMessage = message.text.split(" ");
+
       switch (parsedMessage[0]) {
         case "mute":
           if (parsedMessage[1] == widget.uid.toString()) {
@@ -128,12 +137,12 @@ class _ParticipantState extends State<Participant> {
         case "unmute":
           if (parsedMessage[1] == widget.uid.toString()) {
             setState(() {
-              muted = true;
+              muted = false;
             });
-            _engine.muteLocalAudioStream(true);
+            _engine.muteLocalAudioStream(false);
           }
           break;
-        case "disabled":
+        case "disable":
           if (parsedMessage[1] == widget.uid.toString()) {
             setState(() {
               videoDisabled = true;
@@ -154,6 +163,7 @@ class _ParticipantState extends State<Participant> {
             _users = Message().parseActiveUsers(uids: parsedMessage[1]);
           });
           break;
+        default:
       }
 
       print('Mensagem pública de ' + member.userId + ': ' + (message.text));
@@ -241,7 +251,7 @@ class _ParticipantState extends State<Participant> {
             RtcLocalView.SurfaceView(),
             Align(
               child: Container(
-                padding: EdgeInsets.all(8),
+                padding: EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.only(topLeft: Radius.circular(10)),
                   color: Colors.white,
@@ -287,10 +297,7 @@ class _ParticipantState extends State<Participant> {
 
   Widget _expandedVideoView(List<Widget> views) {
     final wrappedViews = views
-        .map<Widget>((view) => Expanded(
-                child: Container(
-              child: view,
-            )))
+        .map<Widget>((view) => Expanded(child: Container(child: view)))
         .toList();
 
     return Expanded(
@@ -304,9 +311,11 @@ class _ParticipantState extends State<Participant> {
 
     switch (views.length) {
       case 1:
-        return Column(children: <Widget>[
-          _expandedVideoView([views[0]]),
-        ]);
+        return Column(
+          children: <Widget>[
+            _expandedVideoView([views[0]]),
+          ],
+        );
       case 2:
         return Column(children: <Widget>[
           _expandedVideoView([views[0]]),

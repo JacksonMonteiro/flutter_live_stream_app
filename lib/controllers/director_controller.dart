@@ -119,15 +119,15 @@ class DirectorController extends StateNotifier<DirectorModel> {
   }
 
   Future<void> addUserToLobby({required int uid}) async {
+    var userAttributes = await state.client?.getUserAttributes(uid.toString());
     state = state.copyWith(lobbyUsers: {
       ...state.lobbyUsers,
-
       AgoraUser(
           uid: uid,
           muted: true,
           videoDisabled: true,
-          name: 'todo',
-          backgroundColor: Colors.blue)
+          name: userAttributes?['name'],
+          backgroundColor: Color(int.parse(userAttributes?['color']))),
     });
 
     state.channel!.sendMessage(AgoraRtmMessage.fromText(
@@ -183,7 +183,7 @@ class DirectorController extends StateNotifier<DirectorModel> {
     Set<AgoraUser> _tempActive = state.activeUsers;
     Color? tempColor;
     String? tempName;
- 
+
     for (int i = 0; i < _tempActive.length; i++) {
       if (_tempActive.elementAt(i).uid == uid) {
         tempColor = _tempActive.elementAt(i).backgroundColor;
@@ -195,11 +195,12 @@ class DirectorController extends StateNotifier<DirectorModel> {
     state = state.copyWith(lobbyUsers: {
       ...state.lobbyUsers,
       AgoraUser(
-          uid: uid,
-          backgroundColor: tempColor,
-          name: tempName,
-          videoDisabled: true,
-          muted: true,)
+        uid: uid,
+        backgroundColor: tempColor,
+        name: tempName,
+        videoDisabled: true,
+        muted: true,
+      )
     }, activeUsers: _tempActive);
 
     state.channel!.sendMessage(AgoraRtmMessage.fromText("mute $uid"));
@@ -214,6 +215,7 @@ class DirectorController extends StateNotifier<DirectorModel> {
     Set<AgoraUser> _tempSet = state.activeUsers;
     _tempSet.remove(_tempUser);
     _tempSet.add(_tempUser.copyWith(muted: muted));
+    state = state.copyWith(activeUsers: _tempSet);
   }
 
   Future<void> updateUserVideo(
@@ -223,6 +225,7 @@ class DirectorController extends StateNotifier<DirectorModel> {
     Set<AgoraUser> _tempSet = state.activeUsers;
     _tempSet.remove(_tempUser);
     _tempSet.add(_tempUser.copyWith(videoDisabled: videoDisabled));
+    state = state.copyWith(activeUsers: _tempSet);
   }
 
   Future<void> toggleUserAudio(
@@ -240,10 +243,10 @@ class DirectorController extends StateNotifier<DirectorModel> {
       {required int index, required bool enable}) async {
     if (enable) {
       state.channel!.sendMessage(AgoraRtmMessage.fromText(
-          "enable ${state.activeUsers.elementAt(index).uid}"));
+          "disable ${state.activeUsers.elementAt(index).uid}"));
     } else {
       state.channel!.sendMessage(AgoraRtmMessage.fromText(
-          "disable ${state.activeUsers.elementAt(index).uid}"));
+          "enable ${state.activeUsers.elementAt(index).uid}"));
     }
   }
 }

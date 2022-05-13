@@ -216,7 +216,7 @@ class StageUser extends StatelessWidget {
                           index: index, enable: false);
                     } else {
                       directorNotifier.toggleUserVideo(
-                          index: index, enable: false);
+                          index: index, enable: true);
                     }
                   },
                   icon: Icon(Icons.videocam_off),
@@ -230,9 +230,7 @@ class StageUser extends StatelessWidget {
                         uid: directorData.activeUsers.elementAt(index).uid);
                   },
                   icon: Icon(Icons.arrow_downward),
-                  color: directorData.activeUsers.elementAt(index).muted
-                      ? Colors.red
-                      : Colors.white,
+                  color: Colors.white,
                 ),
               ],
             ),
@@ -305,4 +303,3 @@ class LobbyUser extends StatelessWidget {
     );
   }
 }
-  

@@ -2,7 +2,7 @@ import '../models/user.dart';
 
 class Message {
   String sendActiveUsers({required Set<AgoraUser> activeUsers}) {
-    String _userString = "Usuários ativos: ";
+    String _userString = "activeUsers ";
     for (int i = 0; i < activeUsers.length; i++) {
       _userString = _userString + activeUsers.elementAt(i).uid.toString() + ",";
     }
